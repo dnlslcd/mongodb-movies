@@ -1,41 +1,55 @@
-// importar modulos de terceros
-const express = require('express');
-const morgan = require('morgan');
+const express = require("express");
+const logger = require("morgan");
+// importamos 2 objetos de la biblioteca mongodb:
+const {MongoClient, ServerApiVersion} = require("mongodb");
 
-// creamos una instancia del servidor Express
-const app = express();
+    // 1. Connection string: el string donde especificámos usuario:contraseña y URL de conexión 
+    const uri = "mongodb+srv://dani:dani@cluster0.hyxsuo4.mongodb.net/";
 
-// usar un nuevo middleware para indicar a Express que queremos hacer peticiones POST
-app.use(express.urlencoded({extended: true}));
-
-// especificar a Express que quiero usar EJS como motor de plantillas 
-app.set('view engine', 'ejs');
-
-// usamos el middleware morgan para loggear las peticiones
-app.use(morgan('dev'));
-
-// importar un par de objetos de la biblioteca mongodb para conectarnos a la base de datos
-const { MongoClient, ServerApiVersion } = require("mongodb");
-
-// Connection string: el string donde especificámos usuario:contraseña y URL de conexión 
-// URI: Unique Resource Identifier
-const uri = "mongodb+srv://dani:dani@cluster0.hyxsuo4.mongodb.net/";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
+    // 2. Create a MongoClient with a MongoClientOptions object to set the Stable API version
+    const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
     }
-});
+    }
+    );
 
-// variable global para gestionar nuestra base de datos
+// variable global para gestionar la bbdd
 let database;
 
-// GET Cuando el usuario acceda al directorio raíz de nuestro servidor, debemos renderizar las 10 primeras películas de la base de datos
-app.get("/", (req, res) => {
-    res.render('home')
+const app = express();
+app.use(logger("dev"));
+app.set("view engine", "ejs");
+
+
+app.get("/", async (req, res) => {
+    res.render("index");
+
+    // 1. hacer consulta a la bbdd y traer 10 pelis, ordenarlas por fecha de lanzamiento
+    // de forma decreciente. Usar console.log para ver si realmente se recuperan los documentos.
+
+    const movies = database.collection("movies");
+    const query = {};
+    const options = {
+        projection: { sort: {year: -1}, limit: 10}
+    };
+
+    // recuperar las pelis con la query y opciones:
+    const documents = await movies.find(query, options).toArray();
+    console.log(documents);
+    
+     // 2. pasar a la vista los documentos recuperados
+    res.render("index", {
+        movies: documents
+    });
+     // 3. en el ejs, iterar por cada documento y, para cada uno, mostrar el título, imagen y año de lanzamiento.
+
+
+
+
+
 })
 
 
@@ -51,27 +65,20 @@ app.get("/", (req, res) => {
 
 
 
+app.listen(process.env.PORT || 3000, () => {
+    console.log("Server up at 3000");
 
-
-
-
-
-
-
-// levanto servidor
-app.listen(process.env.PORT || 3002, async () => {
-    console.log('Server up, at 3002')
-    
-    // Cuando se levanta el servidor, nos conectamos a mongodb
+    // cuando levantamos el servidor nos conectamos a MongoDB
     try {
-        await client.connect();
-
+        client.connect();
+        
+        // seleccionamos la bbdd
         database = client.db("sample_mflix");
 
         // mensaje de confirmación de que nos hemos conectado a la bbdd
         console.log("Connected to MongoDB");
-        
-    } catch (err) {
-        console.error(err);
+    }
+    catch (error) {
+        console.error("Error connecting to MongoDB:", error);
     }
 });
