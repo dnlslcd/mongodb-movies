@@ -11,18 +11,36 @@
     <main class="container">
         <h1>Movies DB</h1>
         <section class="container">
-            <!--Formulario: 1. por ahora buscar solo por titulo (nombrar del mismo modo el atributo 'name').
-             El endpoint donde debe enviar la info va a ser de momento "/" pero además se añadirá la query (/?title="jumanji")-->
+            <!--Formulario: -->
             <form action="/">
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title">
+            <!--1. por ahora buscar solo por titulo (nombrar del mismo modo el atributo 'name').
+             El endpoint donde debe enviar la info va a ser de momento "/" pero además se añadirá la query (/?title="jumanji")-->
+                <label for="keyword">Keyword:</label>
+                <input type="text" id="keyword" name="keyword">
+            <!--Filtro tipo de filmación: type select-->
+            <label for="type">Type:</label>
+            <select id="type" name="type">
+                <option value="">All</option>
+                <option value="movie">Movies</option>
+                <option value="series">Series</option>
+            </select>
+            <!--Filtro año de lanzamiento: 2 type number-->
+            <fieldset class="grid">
+                <label for="fromYear">From:</label>
+                <input type="number" id="fromYear" name="fromYear" min="1800" max="2025" placeholder="YYYY">
+                <label for="toYear">To:</label>
+                <input type="number" id="toYear" name="toYear" min="1800" max="2025" placeholder="YYYY">
                 <input type="submit" value="Search">
+            </fieldset>
             </form>
         </section>
         <% for (const doc of documents) { %>
         <article>
             <header><%= doc.title %> </header>
             <img src="<%= doc.poster %>" alt="">
+            <div>
+                <%= doc.plot %>
+            </div>
             <footer>Year of release: <%= doc.year %></footer>
         </article>
         <% } %>

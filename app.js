@@ -34,8 +34,8 @@ app.get("/", async (req, res) => {
     const movies = database.collection("movies");
 
     // Iteración 2:
-    // 2.1. obtener query string, de momento, solo del parámetro title
-    const { title } = req.query; // { title } --> operador de desetructuración
+    // 2.1. obtener query strings
+    const { keyword, type, fromYear, toYear } = req.query; // { keyword } --> operador de desetructuración
     
     // 2.2. si la string trae valor, actualizar el objeto query con el filtro
 
@@ -43,11 +43,26 @@ app.get("/", async (req, res) => {
     let query = {};
 
     // si el usuario quiere buscar por título, añado esta información a la query
-    if (title) {
-        query = {
-            ...query, // ...(operador spread) --> copia los mismos campos que se tenía hasta ahora
-            title: new RegExp(title) // añadimos el campo title
-        }    
+    // TODO 1: ahora la palabra clave también se ha de buscar en los campos 'plot' y 'fullPlot'
+    if (keyword) {
+        query.title = new RegExp(keyword, "i"); // añadimos el campo title
+        query.plot = new RegExp(keyword, 'i')
+    }
+
+    // TODO 2: si el parametro 'type' está informado, crear una nueva propiedad en la query (query.type)
+    // y asignarle el valor adecuado para buscar por el tipo de filmación
+    if (type) {
+        query.type = type;
+    }
+
+    // TODO 3: parametro fromYear informado...
+    if (fromYear) {
+        query.year = { $gte: Number(fromYear) };
+    }
+
+    // TODO 4: parametro toYear informado...
+    if (toYear) {
+        query.year = { $lte: Number(toYear) };
     }
 
 
@@ -67,7 +82,7 @@ app.get("/", async (req, res) => {
 
 
 
-})
+});
 
 
 
