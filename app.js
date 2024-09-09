@@ -25,24 +25,23 @@ app.set("view engine", "ejs");
 
 
 app.get("/", async (req, res) => {
-    res.render("index");
+    //res.render("index");
 
     // 1. hacer consulta a la bbdd y traer 10 pelis, ordenarlas por fecha de lanzamiento
     // de forma decreciente. Usar console.log para ver si realmente se recuperan los documentos.
 
     const movies = database.collection("movies");
     const query = {};
-    const options = {
-        projection: { sort: {year: -1}, limit: 10}
-    };
+    const options = {};
+    const cursor = movies.find(query).sort({year: -1}).limit(10);
 
-    // recuperar las pelis con la query y opciones:
-    const documents = await movies.find(query, options).toArray();
+    // recuperar las pelis y transformarlas en array:
+    const documents = await cursor.toArray();
     console.log(documents);
     
      // 2. pasar a la vista los documentos recuperados
     res.render("index", {
-        movies: documents
+        documents
     });
      // 3. en el ejs, iterar por cada documento y, para cada uno, mostrar el título, imagen y año de lanzamiento.
 

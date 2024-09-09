@@ -10,11 +10,20 @@
 <body>
     <main class="container">
         <h1>Movies DB</h1>
+        <section class="container">
+            <!--Formulario: 1. por ahora buscar solo por titulo (nombrar del mismo modo el atributo 'name').
+             El endpoint donde debe enviar la info va a ser de momento "/" pero además se añadirá la query (/?title="jumanji")-->
+            <form action="/">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title">
+                <input type="submit" value="Search">
+            </form>
+        </section>
         <% for (const doc of documents) { %>
         <article>
-            <header>huidhrifhiehde</header>
-            <img src="" alt="">
-            <footer>año de lanzamiento</footer>
+            <header><%= doc.title %> </header>
+            <img src="<%= doc.poster %>" alt="">
+            <footer>Year of release: <%= doc.year %></footer>
         </article>
         <% } %>
     </main>
